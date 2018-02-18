@@ -172,10 +172,13 @@ public class IndexFiles {
 
           default:
             stringBuilder.append(line);
-            stringBuilder.append("%n");
             break;
          }
        }
+
+       //index the last file
+       doc.add(new TextField("Words", stringBuilder.toString(), Field.Store.YES));
+       indexDocument(writer, doc);
 
        //close file.
        bufferedReader.close();
