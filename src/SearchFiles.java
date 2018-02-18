@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.lucene.demo;
+package searching;
 
 
 import java.io.BufferedReader;
@@ -179,10 +179,10 @@ public class SearchFiles {
         }
 
         Document doc = searcher.doc(hits[i].doc);
-        String path = doc.get("path");
+        String path = doc.get("Instance_ID");
         if (path != null) {
           System.out.println((i+1) + ". " + path);
-          String title = doc.get("title");
+          String title = doc.get("Title");
           if (title != null) {
             System.out.println("   Title: " + doc.get("title"));
           }

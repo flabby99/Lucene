@@ -1,7 +1,9 @@
 # Lucene - Sean
 
 # Makefile
-I will create a makefile which will handle compiling the code
+I will try to create a makefile which will handle compiling the code
+In case I do not get around to it - run:
+>javac -d ./classes/ -cp :./lib/* #JAVA_SRC_PATH
 
 # Running
 To run the code move to the classes directory and run:

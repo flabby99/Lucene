@@ -156,7 +156,7 @@ public class IndexFiles {
             break;
 
           case ".A" :
-            doc.add(new TextField("Title", stringBuilder.toString(), Field.Store.NO));
+            doc.add(new TextField("Title", stringBuilder.toString(), Field.Store.YES));
             stringBuilder.setLength(0);
             break;
 
