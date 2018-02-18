@@ -131,7 +131,7 @@ public class IndexFiles {
     String line = null;
     StringBuilder stringBuilder = new StringBuilder();
     int doc_index = 1;
-    Document doc;
+    Document doc = new Document();
     try {
        // Create a buffered Reader
        BufferedReader bufferedReader =
@@ -139,7 +139,7 @@ public class IndexFiles {
        //Read until end of file
        while((line = bufferedReader.readLine()) != null) {
          switch (firstTwo(line)) {
-           case ".I " :
+           case ".I" :
             if (doc_index != 1) {
               doc.add(new TextField("Words", stringBuilder.toString(), Field.Store.NO));
               stringBuilder.setLength(0);
@@ -185,7 +185,7 @@ public class IndexFiles {
   }
 
   /** Indexes a single document using writer*/
-  static void indexDocument(IndexWriter writer, Document doc) {
+  static void indexDocument(IndexWriter writer, Document doc) throws IOException  {
     if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
       // New index, so we just add the document (no old document can be there):
       System.out.println("adding " + doc.get("Title"));
@@ -195,7 +195,7 @@ public class IndexFiles {
       // we use updateDocument instead to replace the old one matching the exact
       // path, if present:
       System.out.println("updating " + doc.get("Title"));
-      writer.updateDocument(new Term("Instance_ID", doc.get("Instance_ID"), doc);
+      writer.updateDocument(new Term("Instance_ID", doc.get("Instance_ID")), doc);
     }
   }
 }
