@@ -141,7 +141,7 @@ public class IndexFiles {
          switch (firstTwo(line)) {
            case ".I " :
             if (doc_index != 1) {
-              doc.add(new TextField("Words", stringBuilder.toString()), Field.Store.NO);
+              doc.add(new TextField("Words", stringBuilder.toString(), Field.Store.NO));
               stringBuilder.setLength(0);
               indexDocument(writer, doc);
             }
@@ -156,17 +156,17 @@ public class IndexFiles {
             break;
 
           case ".A" :
-            doc.add(new TextField("Title", stringBuilder.toString()), Field.Store.NO);
+            doc.add(new TextField("Title", stringBuilder.toString(), Field.Store.NO));
             stringBuilder.setLength(0);
             break;
 
           case ".B" :
-            doc.add(new TextField("Abstract", stringBuilder.toString()), Field.Store.NO);
+            doc.add(new TextField("Abstract", stringBuilder.toString(), Field.Store.NO));
             stringBuilder.setLength(0);
             break;
 
           case ".W" :
-            doc.add(new StringField("Bibliographic", stringBuilder.toString()), Field.Store.NO);
+            doc.add(new StringField("Bibliographic", stringBuilder.toString(), Field.Store.NO));
             stringBuilder.setLength(0);
             break;
 
@@ -195,7 +195,7 @@ public class IndexFiles {
       // we use updateDocument instead to replace the old one matching the exact
       // path, if present:
       System.out.println("updating " + doc.get("Title"));
-      writer.updateDocument(new Term("path", file.toString()), doc);
+      writer.updateDocument(new Term("Instance_ID", doc.get("Instance_ID"), doc);
     }
   }
 }
