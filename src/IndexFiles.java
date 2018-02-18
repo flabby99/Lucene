@@ -147,22 +147,28 @@ public class IndexFiles {
 
             case ".T" :
               stringBuilder.setLength(0);
+              break;
 
             case ".A" :
             //TODO check if the default for this is to store or not store it
               doc.add(new TextField("Title", stringBuilder.toString()));
               stringBuilder.setLength(0);
+              break;
 
             case ".B" :
               doc.add(new TextField("Abstract", stringBuilder.toString()));
               stringBuilder.setLength(0);
+              break;
 
             case ".W" :
               doc.add(new StringField("Bibliographic", stringBuilder.toString()));
               stringBuilder.setLength(0);
+              break;
+
             case
             default:
               stringBuilder.append(line);
+              break;
            }
          }
 
