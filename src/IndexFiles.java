@@ -38,6 +38,7 @@ import org.apache.lucene.store.FSDirectory;
  * This is a command-line application demonstrating simple Lucene indexing.
  * Run it with no command-line arguments for usage information.
  */
+
 public class IndexFiles {
 
   private IndexFiles() {}
@@ -120,6 +121,11 @@ public class IndexFiles {
     }
   }
 
+  //Helper to get the first two characters of a string
+  static String firstTwo(String str) {
+       return str.length() < 2 ? str : str.substring(0, 2);
+  }
+
   /** Reads through the cranfield collection and indexes it */
   static void indexCranfield(IndexWriter writer, Path file) throws IOException {
     String line = null;
@@ -127,75 +133,69 @@ public class IndexFiles {
     int doc_index = 1;
     Document doc;
     try {
-         // Create a buffered Reader
-         BufferedReader bufferedReader =
-             new BufferedReader(file, StandardCharsets.UTF_8);
-         //Read until end of file
-         while((line = bufferedReader.readLine()) != null) {
-           switch (line) {
-             case ".I " + doc_index :
-              if (doc_index != 1) {
-                doc.add(new TextField("Words", stringBuilder.toString()));
-                stringBuilder.setLength(0);
-                indexDocument(writer, doc);
-              }
-              doc = new Document();
-              doc.add(new IntPoint("Instance_ID", doc_index));
-              doc.add(new StoredField("Instance_ID", doc_index));
-              ++doc_index;
-              break;
-
-            case ".T" :
+       // Create a buffered Reader
+       BufferedReader bufferedReader =
+          Files.newBufferedReader(file, StandardCharsets.UTF_8);
+       //Read until end of file
+       while((line = bufferedReader.readLine()) != null) {
+         switch (firstTwo(line)) {
+           case ".I " :
+            if (doc_index != 1) {
+              doc.add(new TextField("Words", stringBuilder.toString()), Field.Store.NO);
               stringBuilder.setLength(0);
-              break;
+              indexDocument(writer, doc);
+            }
+            doc = new Document();
+            doc.add(new IntPoint("Instance_ID", doc_index));
+            doc.add(new StoredField("Instance_ID", doc_index));
+            ++doc_index;
+            break;
 
-            case ".A" :
-            //TODO check if the default for this is to store or not store it
-              doc.add(new TextField("Title", stringBuilder.toString()));
-              stringBuilder.setLength(0);
-              break;
+          case ".T" :
+            stringBuilder.setLength(0);
+            break;
 
-            case ".B" :
-              doc.add(new TextField("Abstract", stringBuilder.toString()));
-              stringBuilder.setLength(0);
-              break;
+          case ".A" :
+            doc.add(new TextField("Title", stringBuilder.toString()), Field.Store.NO);
+            stringBuilder.setLength(0);
+            break;
 
-            case ".W" :
-              doc.add(new StringField("Bibliographic", stringBuilder.toString()));
-              stringBuilder.setLength(0);
-              break;
+          case ".B" :
+            doc.add(new TextField("Abstract", stringBuilder.toString()), Field.Store.NO);
+            stringBuilder.setLength(0);
+            break;
 
-            case
-            default:
-              stringBuilder.append(line);
-              break;
-           }
+          case ".W" :
+            doc.add(new StringField("Bibliographic", stringBuilder.toString()), Field.Store.NO);
+            stringBuilder.setLength(0);
+            break;
+
+          default:
+            stringBuilder.append(line);
+            break;
          }
+       }
 
-         //close file.
-         bufferedReader.close();
-      }
-      catch(IOException ex) {
-         ex.printStackTrace();
-      }
+       //close file.
+       bufferedReader.close();
     }
-
-    /** Indexes a single document using writer*/
-    static void indexDocument(IndexWriter writer, Document doc) {
-      if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
-        // New index, so we just add the document (no old document can be there):
-        //TODO update this print
-        System.out.println("adding " + file);
-        writer.addDocument(doc);
-      } else {
-        // Existing index (an old copy of this document may have been indexed) so
-        // we use updateDocument instead to replace the old one matching the exact
-        // path, if present:
-        //TODO update this print
-        System.out.println("updating " + file);
-        writer.updateDocument(new Term("path", file.toString()), doc);
-      }
+    catch(IOException ex) {
+       ex.printStackTrace();
     }
+  }
 
+  /** Indexes a single document using writer*/
+  static void indexDocument(IndexWriter writer, Document doc) {
+    if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
+      // New index, so we just add the document (no old document can be there):
+      System.out.println("adding " + doc.get("Title"));
+      writer.addDocument(doc);
+    } else {
+      // Existing index (an old copy of this document may have been indexed) so
+      // we use updateDocument instead to replace the old one matching the exact
+      // path, if present:
+      System.out.println("updating " + doc.get("Title"));
+      writer.updateDocument(new Term("path", file.toString()), doc);
+    }
   }
 }
