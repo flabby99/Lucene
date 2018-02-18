@@ -141,7 +141,7 @@ public class IndexFiles {
          switch (firstTwo(line)) {
            case ".I" :
             if (doc_index != 1) {
-              doc.add(new TextField("Words", stringBuilder.toString(), Field.Store.NO));
+              doc.add(new TextField("Words", stringBuilder.toString(), Field.Store.YES));
               stringBuilder.setLength(0);
               indexDocument(writer, doc);
             }
@@ -161,17 +161,18 @@ public class IndexFiles {
             break;
 
           case ".B" :
-            doc.add(new TextField("Abstract", stringBuilder.toString(), Field.Store.NO));
+            doc.add(new TextField("Abstract", stringBuilder.toString(), Field.Store.YES));
             stringBuilder.setLength(0);
             break;
 
           case ".W" :
-            doc.add(new StringField("Bibliographic", stringBuilder.toString(), Field.Store.NO));
+            doc.add(new StringField("Bibliographic", stringBuilder.toString(), Field.Store.YES));
             stringBuilder.setLength(0);
             break;
 
           default:
             stringBuilder.append(line);
+            stringBuilder.append("%n");
             break;
          }
        }
