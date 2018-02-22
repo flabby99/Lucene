@@ -3,3 +3,4 @@
 *.iml
 #Ignore temp index
 tempindex/
+results/*

@@ -54,7 +54,7 @@ public class SearchFiles {
 
     String index = "index";
     String field = "contents";
-    String outlocation = "results";
+    String outlocation = "results/results.txt";
     String queries = null;
     int repeat = 0;
     boolean raw = false;
@@ -151,6 +151,8 @@ public class SearchFiles {
       ++query_count;
     }
     reader.close();
+    out.close();
+    in.close();
   }
 
   private static String getCranQuery(String queryString, BufferedReader in) throws IOException{
@@ -196,6 +198,8 @@ public class SearchFiles {
       stringBuilder.append(hit.doc + " " + rank + " ");
       stringBuilder.append(hit.score + " " + run_id);
       System.out.println(stringBuilder.toString());
+      writer.write(stringBuilder.toString());
+      writer.newLine();
     }
     return null;
   }
