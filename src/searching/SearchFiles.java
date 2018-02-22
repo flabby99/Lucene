@@ -91,7 +91,7 @@ public class SearchFiles {
     IndexSearcher searcher = new IndexSearcher(reader);
     Analyzer analyzer = new StandardAnalyzer();
 
-    BufferedReader in = null;
+    BufferedReader in;
     if (queries != null) {
       in = Files.newBufferedReader(Paths.get(queries), StandardCharsets.UTF_8);
     } else {
@@ -105,7 +105,7 @@ public class SearchFiles {
 
       String line = queryString != null ? queryString : in.readLine();
 
-      if (line == null || line.length() == -1) {
+      if (line == null) {
         break;
       }
 

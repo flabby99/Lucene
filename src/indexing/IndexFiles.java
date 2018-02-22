@@ -9,12 +9,9 @@ package indexing;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Date;
 import java.lang.StringBuilder;
 
@@ -122,13 +119,13 @@ public class IndexFiles {
   }
 
   //Helper to get the first two characters of a string
-  static String firstTwo(String str) {
+  private static String firstTwo(String str) {
        return str.length() < 2 ? str : str.substring(0, 2);
   }
 
   /** Reads through the cranfield collection and indexes it */
-  static void indexCranfield(IndexWriter writer, Path file) throws IOException {
-    String line = null;
+  private static void indexCranfield(IndexWriter writer, Path file) {
+    String line;
     StringBuilder stringBuilder = new StringBuilder();
     int doc_index = 1;
     Document doc = new Document();
@@ -189,7 +186,7 @@ public class IndexFiles {
   }
 
   /** Indexes a single document using writer*/
-  static void indexDocument(IndexWriter writer, Document doc) throws IOException  {
+  private static void indexDocument(IndexWriter writer, Document doc) throws IOException  {
     if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
       // New index, so we just add the document (no old document can be there):
       System.out.println("adding " + doc.get("Title"));
