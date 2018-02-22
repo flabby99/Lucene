@@ -158,7 +158,7 @@ public class IndexFiles {
             break;
 
           case ".B" :
-            doc.add(new TextField("Abstract", stringBuilder.toString(), Field.Store.YES));
+            doc.add(new TextField("Author", stringBuilder.toString(), Field.Store.YES));
             stringBuilder.setLength(0);
             break;
 
@@ -168,7 +168,7 @@ public class IndexFiles {
             break;
 
           default:
-            stringBuilder.append(line);
+            stringBuilder.append(line + " ");
             break;
          }
        }

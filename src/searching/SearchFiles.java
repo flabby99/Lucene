@@ -92,8 +92,11 @@ public class SearchFiles {
     Analyzer analyzer = new StandardAnalyzer();
 
     BufferedReader in;
+    String line;
     if (queries != null) {
       in = Files.newBufferedReader(Paths.get(queries), StandardCharsets.UTF_8);
+      //Throw away the first I
+      in.readLine();
     } else {
       in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
     }
@@ -103,17 +106,18 @@ public class SearchFiles {
         System.out.println("Enter query: ");
       }
 
-      String line = queryString != null ? queryString : in.readLine();
+      if(queries == null) {
+        line = getLine(queryString, in);
+      }
+      else {
+        line = getCranQuery(queryString, in);
+      }
 
-      if (line == null) {
+      if (line == null || line.length() == 0) {
         break;
       }
 
-      line = line.trim();
-      if (line.length() == 0) {
-        break;
-      }
-
+      line = parser.escape(line);
       Query query = parser.parse(line);
       System.out.println("Searching for: " + query.toString(field));
 
@@ -135,6 +139,34 @@ public class SearchFiles {
     reader.close();
   }
 
+  //Helper to get the first two characters of a string
+  private static String firstTwo(String str) {
+    return str.length() < 2 ? str : str.substring(0, 2);
+  }
+
+  private static String getCranQuery(String queryString, BufferedReader in) throws IOException{
+    StringBuilder stringBuilder = new StringBuilder();
+    String line = in.readLine();
+    if(line == null) return null;
+    while(true) {
+      line = in.readLine();
+      if (line == null || firstTwo(line).equals(".I")) {
+        break;
+      }
+      stringBuilder.append(line + " ");
+    }
+    return stringBuilder.toString().trim();
+  }
+
+  private static String getLine(String queryString, BufferedReader in) throws IOException {
+    String line = queryString != null ? queryString : in.readLine();
+    line = line.trim();
+    return line;
+  }
+
+
+  //TODO implement a search that returns the documents with a score that is specified by TRECeval
+
   /**
    * This demonstrates a typical paging search scenario, where the search engine presents
    * pages of size n to the user. The user can then go to the next page if interested in
@@ -145,7 +177,7 @@ public class SearchFiles {
    * is executed another time and all hits are collected.
    *
    */
-  public static void doPagingSearch(BufferedReader in, IndexSearcher searcher, Query query,
+  private static void doPagingSearch(BufferedReader in, IndexSearcher searcher, Query query,
                                      int hitsPerPage, boolean raw, boolean interactive) throws IOException {
 
     // Collect enough docs to show 5 pages
