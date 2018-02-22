@@ -17,9 +17,7 @@
 package searching;
 
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -37,6 +35,9 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
 
+/* My files */
+import common.Util;
+
 /** Simple command-line based search demo. */
 public class SearchFiles {
 
@@ -45,7 +46,7 @@ public class SearchFiles {
   /** Simple command-line based search demo. */
   public static void main(String[] args) throws Exception {
     String usage =
-      "Usage:\tjava org.apache.lucene.demo.SearchFiles [-index dir] [-field f] [-repeat n] [-queries file] [-query string] [-raw] [-paging hitsPerPage]\n\nSee http://lucene.apache.org/core/4_1_0/demo/ for details.";
+      "Usage:\tjava org.apache.lucene.demo.SearchFiles [-result dir] [-index dir] [-field f] [-repeat n] [-queries file] [-query string] [-raw] [-paging hitsPerPage]\n\nSee http://lucene.apache.org/core/4_1_0/demo/ for details.";
     if (args.length > 0 && ("-h".equals(args[0]) || "-help".equals(args[0]))) {
       System.out.println(usage);
       System.exit(0);
@@ -53,18 +54,24 @@ public class SearchFiles {
 
     String index = "index";
     String field = "contents";
+    String outlocation = "results";
     String queries = null;
     int repeat = 0;
     boolean raw = false;
     String queryString = null;
     int hitsPerPage = 10;
+    int numresults = 20;
+    String run_id = "STANDARD";
 
     for(int i = 0;i < args.length;i++) {
       if ("-index".equals(args[i])) {
         index = args[i+1];
         i++;
       } else if ("-field".equals(args[i])) {
-        field = args[i+1];
+        field = args[i + 1];
+        i++;
+      } else if ("-result".equals(args[i])) {
+        outlocation = args[i + 1];
         i++;
       } else if ("-queries".equals(args[i])) {
         queries = args[i+1];
@@ -92,7 +99,9 @@ public class SearchFiles {
     Analyzer analyzer = new StandardAnalyzer();
 
     BufferedReader in;
+    BufferedWriter out = Files.newBufferedWriter(Paths.get(outlocation));
     String line;
+    int query_count = 0;
     if (queries != null) {
       in = Files.newBufferedReader(Paths.get(queries), StandardCharsets.UTF_8);
       //Throw away the first I
@@ -105,7 +114,6 @@ public class SearchFiles {
       if (queries == null && queryString == null) {                        // prompt the user
         System.out.println("Enter query: ");
       }
-
       if(queries == null) {
         line = getLine(queryString, in);
       }
@@ -129,19 +137,20 @@ public class SearchFiles {
         Date end = new Date();
         System.out.println("Time: "+(end.getTime()-start.getTime())+"ms");
       }
+      if(queries == null) {
+        doPagingSearch(in, searcher, query, hitsPerPage, raw, queries == null && queryString == null);
+      }
 
-      doPagingSearch(in, searcher, query, hitsPerPage, raw, queries == null && queryString == null);
+      else {
+        doCranSearch(out, searcher, query, numresults, query_count, run_id);
+      }
 
       if (queryString != null) {
         break;
       }
+      ++query_count;
     }
     reader.close();
-  }
-
-  //Helper to get the first two characters of a string
-  private static String firstTwo(String str) {
-    return str.length() < 2 ? str : str.substring(0, 2);
   }
 
   private static String getCranQuery(String queryString, BufferedReader in) throws IOException{
@@ -150,7 +159,7 @@ public class SearchFiles {
     if(line == null) return null;
     while(true) {
       line = in.readLine();
-      if (line == null || firstTwo(line).equals(".I")) {
+      if (line == null || Util.firstTwo(line).equals(".I")) {
         break;
       }
       stringBuilder.append(line + " ");
@@ -165,7 +174,32 @@ public class SearchFiles {
   }
 
 
-  //TODO implement a search that returns the documents with a score that is specified by TRECeval
+  /**TODO implement a search that returns the documents with a score that is specified by TREC**/
+
+  /**
+   * This takes in a query - searches it in the index and adds a line to a file
+   * The line added is in the format:
+   * query_id iter doc_id rank sim run_id
+   * *** Q0 *** *** *** NAME
+   * iter and rank are required but they are not used
+   *
+   */
+  private static String doCranSearch(BufferedWriter writer, IndexSearcher searcher, Query query,
+                                     int numresults, int query_id, String run_id) throws IOException {
+    StringBuilder stringBuilder;
+    TopDocs results = searcher.search(query, numresults);
+    ScoreDoc[] hits = results.scoreDocs;
+    int rank = 0;
+    for(ScoreDoc hit : hits) {
+      ++rank;
+      stringBuilder = new StringBuilder(query_id + " Q0 ");
+      stringBuilder.append(hit.doc + " " + rank + " ");
+      stringBuilder.append(hit.score + " " + run_id);
+      System.out.println(stringBuilder.toString());
+    }
+    return null;
+  }
+
 
   /**
    * This demonstrates a typical paging search scenario, where the search engine presents

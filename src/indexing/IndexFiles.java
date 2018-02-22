@@ -30,6 +30,8 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
+import common.Util;
+
 /** Index all text files under a directory.
  * <p>
  * This is a command-line application demonstrating simple Lucene indexing.
@@ -118,11 +120,6 @@ public class IndexFiles {
     }
   }
 
-  //Helper to get the first two characters of a string
-  private static String firstTwo(String str) {
-       return str.length() < 2 ? str : str.substring(0, 2);
-  }
-
   /** Reads through the cranfield collection and indexes it */
   private static void indexCranfield(IndexWriter writer, Path file) {
     String line;
@@ -135,7 +132,7 @@ public class IndexFiles {
           Files.newBufferedReader(file, StandardCharsets.UTF_8);
        //Read until end of file
        while((line = bufferedReader.readLine()) != null) {
-         switch (firstTwo(line)) {
+         switch (Util.firstTwo(line)) {
            case ".I" :
             if (doc_index != 1) {
               doc.add(new TextField("Words", stringBuilder.toString(), Field.Store.YES));
