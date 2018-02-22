@@ -101,7 +101,7 @@ public class SearchFiles {
     BufferedReader in;
     BufferedWriter out = Files.newBufferedWriter(Paths.get(outlocation));
     String line;
-    int query_count = 0;
+    int query_count = 1;
     if (queries != null) {
       in = Files.newBufferedReader(Paths.get(queries), StandardCharsets.UTF_8);
       //Throw away the first I
