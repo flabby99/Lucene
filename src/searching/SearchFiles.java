@@ -100,8 +100,10 @@ public class SearchFiles {
 
     if(use_bm25) searcher.setSimilarity(new BM25Similarity());
     else searcher.setSimilarity(new ClassicSimilarity());
+    //TODO make this configurable
     Analyzer analyzer = new EnglishAnalyzer();
     Analyzer custom = TestAnalyzer.BuildAnalyzer("res");
+    analyzer = custom;
 
     BufferedReader in;
     BufferedWriter out = Files.newBufferedWriter(Paths.get(outlocation));

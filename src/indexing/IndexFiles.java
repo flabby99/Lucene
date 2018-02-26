@@ -90,6 +90,7 @@ public class IndexFiles {
 
       Directory dir = FSDirectory.open(Paths.get(indexPath));
       String configDir = "res";
+      //TODO make this configurable
       Analyzer analyzer = new EnglishAnalyzer();
       Analyzer custom = TestAnalyzer.BuildAnalyzer(configDir);
       analyzer = custom;
