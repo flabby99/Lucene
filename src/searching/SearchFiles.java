@@ -1,21 +1,9 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SEAN MARTIN
+ * This code is based on the Apache Lucene demo Indexing file
+ * Found at https://lucene.apache.org/core/7_2_1/demo/src-html/org/apache/lucene/demo/SearchFiles.html
  */
 package searching;
-
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -28,6 +16,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
@@ -109,7 +98,9 @@ public class SearchFiles {
     } else {
       in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
     }
-    QueryParser parser = new QueryParser(field, analyzer);
+    MultiFieldQueryParser parser = new MultiFieldQueryParser(
+            new String[] {"Words", "Title"}, analyzer);
+    parser.setDefaultOperator(QueryParser.Operator.OR);
     while (true) {
       if (queries == null && queryString == null) {                        // prompt the user
         System.out.println("Enter query: ");
@@ -125,9 +116,9 @@ public class SearchFiles {
         break;
       }
 
-      line = parser.escape(line);
+      line = QueryParser.escape(line);
       Query query = parser.parse(line);
-      System.out.println("Searching for: " + query.toString(field));
+      System.out.println("Searching for: " + query.toString());
 
       if (repeat > 0) {                           // repeat & time as benchmark
         Date start = new Date();
@@ -175,9 +166,6 @@ public class SearchFiles {
     return line;
   }
 
-
-  /**TODO implement a search that returns the documents with a score that is specified by TREC**/
-
   /**
    * This takes in a query - searches it in the index and adds a line to a file
    * The line added is in the format:
@@ -195,8 +183,8 @@ public class SearchFiles {
     for(ScoreDoc hit : hits) {
       ++rank;
       stringBuilder = new StringBuilder(query_id + " Q0 ");
-      stringBuilder.append(hit.doc + " " + rank + " ");
-      stringBuilder.append(hit.score + " " + run_id);
+      stringBuilder.append(hit.doc).append(" ").append(rank).append(" ");
+      stringBuilder.append(hit.score).append(" ").append(run_id);
       System.out.println(stringBuilder.toString());
       writer.write(stringBuilder.toString());
       writer.newLine();

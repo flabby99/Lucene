@@ -165,7 +165,7 @@ public class IndexFiles {
             break;
 
           default:
-            stringBuilder.append(line + " ");
+            stringBuilder.append(line).append(" ");
             break;
          }
        }
