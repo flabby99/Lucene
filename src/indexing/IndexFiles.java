@@ -16,7 +16,7 @@ import java.util.Date;
 import java.lang.StringBuilder;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -30,7 +30,13 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
+//For similarities
+import org.apache.lucene.search.similarities.BM25Similarity;
+import org.apache.lucene.search.similarities.ClassicSimilarity;
+
+//My files
 import common.Util;
+import common.analyzers.TestAnalyzer;
 
 /** Index all text files under a directory.
  * <p>
@@ -45,12 +51,14 @@ public class IndexFiles {
   /** Index all text files under a directory. */
   public static void main(String[] args) {
     String usage = "java org.apache.lucene.demo.IndexFiles"
-                 + " [-index INDEX_PATH] [-docs DOCS_PATH] [-update]\n\n"
+                 + " [-index INDEX_PATH] [-docs DOCS_PATH] [-update] [-bm25]\n\n"
                  + "This indexes the documents in DOCS_PATH, creating a Lucene index"
+                 + "bm25 flag is used to set the scorer, if it is off, use tf-idf"
                  + "in INDEX_PATH that can be searched with SearchFiles";
     String indexPath = "index";
     String docsPath = null;
     boolean create = true;
+    boolean use_bm25 = false;
     for(int i=0;i<args.length;i++) {
       if ("-index".equals(args[i])) {
         indexPath = args[i+1];
@@ -60,6 +68,8 @@ public class IndexFiles {
         i++;
       } else if ("-update".equals(args[i])) {
         create = false;
+      } else if ("-bm25".equals(args[i])) {
+        use_bm25 = true;
       }
     }
 
@@ -79,7 +89,10 @@ public class IndexFiles {
       System.out.println("Indexing to directory '" + indexPath + "'...");
 
       Directory dir = FSDirectory.open(Paths.get(indexPath));
-      Analyzer analyzer = new StandardAnalyzer();
+      String configDir = "res";
+      Analyzer analyzer = new EnglishAnalyzer();
+      Analyzer custom = TestAnalyzer.BuildAnalyzer(configDir);
+      analyzer = custom;
       IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
 
       if (create) {
@@ -97,6 +110,10 @@ public class IndexFiles {
       // size to the JVM (eg add -Xmx512m or -Xmx1g):
       //
       // iwc.setRAMBufferSizeMB(256.0);
+
+      //Set the similarity to be used
+      if(use_bm25) iwc.setSimilarity(new BM25Similarity());
+      else iwc.setSimilarity(new ClassicSimilarity());
 
       IndexWriter writer = new IndexWriter(dir, iwc);
       indexCranfield(writer, docDir);

@@ -12,7 +12,7 @@ import java.nio.file.Paths;
 import java.util.Date;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -24,8 +24,13 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
 
+//For similarities
+import org.apache.lucene.search.similarities.BM25Similarity;
+import org.apache.lucene.search.similarities.ClassicSimilarity;
+
 /* My files */
 import common.Util;
+import common.analyzers.TestAnalyzer;
 
 /** Simple command-line based search demo. */
 public class SearchFiles {
@@ -35,7 +40,10 @@ public class SearchFiles {
   /** Simple command-line based search demo. */
   public static void main(String[] args) throws Exception {
     String usage =
-      "Usage:\tjava org.apache.lucene.demo.SearchFiles [-result dir] [-index dir] [-field f] [-repeat n] [-queries file] [-query string] [-raw] [-paging hitsPerPage]\n\nSee http://lucene.apache.org/core/4_1_0/demo/ for details.";
+      "Usage:\tjava org.apache.lucene.demo.SearchFiles [-result dir] [-index dir] [-field f] [-repeat n] " +
+          "[-queries file] [-query string] [-raw] [-paging hitsPerPage] [-bm25]" +
+          "bm25 flag is used to set the scorer, if it is off, use tf-idf" +
+          "\n\nSee http://lucene.apache.org/core/4_1_0/demo/ for details.";
     if (args.length > 0 && ("-h".equals(args[0]) || "-help".equals(args[0]))) {
       System.out.println(usage);
       System.exit(0);
@@ -47,6 +55,7 @@ public class SearchFiles {
     String queries = null;
     int repeat = 0;
     boolean raw = false;
+    boolean use_bm25 = false;
     String queryString = null;
     int hitsPerPage = 10;
     int numresults = 20;
@@ -73,6 +82,9 @@ public class SearchFiles {
         i++;
       } else if ("-raw".equals(args[i])) {
         raw = true;
+      }
+        else if ("-bm25".equals(args[i])) {
+        use_bm25 = true;
       } else if ("-paging".equals(args[i])) {
         hitsPerPage = Integer.parseInt(args[i+1]);
         if (hitsPerPage <= 0) {
@@ -85,7 +97,11 @@ public class SearchFiles {
 
     IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
     IndexSearcher searcher = new IndexSearcher(reader);
-    Analyzer analyzer = new StandardAnalyzer();
+
+    if(use_bm25) searcher.setSimilarity(new BM25Similarity());
+    else searcher.setSimilarity(new ClassicSimilarity());
+    Analyzer analyzer = new EnglishAnalyzer();
+    Analyzer custom = TestAnalyzer.BuildAnalyzer("res");
 
     BufferedReader in;
     BufferedWriter out = Files.newBufferedWriter(Paths.get(outlocation));
