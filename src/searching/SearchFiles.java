@@ -58,7 +58,7 @@ public class SearchFiles {
     boolean use_bm25 = false;
     String queryString = null;
     int hitsPerPage = 10;
-    int numresults = 20;
+    int numresults = 1000;
     String run_id = "STANDARD";
 
     for(int i = 0;i < args.length;i++) {
@@ -201,9 +201,10 @@ public class SearchFiles {
     for(ScoreDoc hit : hits) {
       ++rank;
       stringBuilder = new StringBuilder(query_id + " Q0 ");
-      stringBuilder.append(hit.doc).append(" ").append(rank).append(" ");
+      Document doc = searcher.doc(hit.doc);
+      stringBuilder.append(doc.get("Instance_ID")).append(" ").append(rank).append(" ");
       stringBuilder.append(hit.score).append(" ").append(run_id);
-      System.out.println(stringBuilder.toString());
+      //System.out.println(stringBuilder.toString());
       writer.write(stringBuilder.toString());
       writer.newLine();
     }
