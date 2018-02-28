@@ -40,11 +40,11 @@ public class SearchFiles {
   /** Simple command-line based search demo. */
   public static void main(String[] args) throws Exception {
     String usage =
-      "Usage:\tjava org.apache.lucene.demo.SearchFiles [-result dir] [-index dir] [-field f] [-repeat n] \n" +
+      "Usage:\tjava SearchFiles [-result dir] [-index dir] [-field f] [-repeat n] \n" +
           "[-queries file] [-query string] [-raw] [-paging hitsPerPage] [-bm25] [-english_ana] \n" +
-          "bm25 flag is used to set the scorer, if it is off, use tf-idf \n" +
-          "english_ana is used to set if the English analyzer is to be used \n" +
-          "\n\nSee http://lucene.apache.org/core/4_1_0/demo/ for details.\n";
+          "the -bm25 flag is used to set the scorer, if it is off tf-idf is used, else bm25\n" +
+          "the -english_ana flag is used to set if the English analyzer is used, if off use my custom analyser \n" +
+          "\n\nSee http://lucene.apache.org/core/4_1_0/demo/ for details on the base for this.\n";
     if (args.length > 0 && ("-h".equals(args[0]) || "-help".equals(args[0]))) {
       System.out.println(usage);
       System.exit(0);

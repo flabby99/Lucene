@@ -50,12 +50,12 @@ public class IndexFiles {
 
   /** Index all text files under a directory. */
   public static void main(String[] args) {
-    String usage = "java org.apache.lucene.demo.IndexFiles"
+    String usage = "Usage: java IndexFiles"
                  + " [-index INDEX_PATH] [-docs DOCS_PATH] [-update] [-bm25] [-english_ana]\n\n"
                  + "This indexes the documents in DOCS_PATH, creating a Lucene index\n"
-                 + "bm25 flag is used to set the scorer, if it is off, use tf-idf\n"
-                 + "english_ana flag on means english analyzer is used, otherwise my own is\n"
-                 + "in INDEX_PATH that can be searched with SearchFiles\n";
+                 + "the -bm25 flag is used to set the scorer, if the flag is on use BM25, otherwise use tf-idf\n"
+                 + "if the -english_ana flag present the english analyzer is used, otherwise my own custom analyser is\n"
+                 + "the Lucene index in INDEX_PATH that can be searched with SearchFiles\n";
     String indexPath = "index";
     String docsPath = null;
     boolean create = true;
