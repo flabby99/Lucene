@@ -102,7 +102,7 @@ public class SearchFiles {
     else searcher.setSimilarity(new ClassicSimilarity());
     //TODO make this configurable
     Analyzer analyzer = new EnglishAnalyzer();
-    Analyzer custom = TestAnalyzer.BuildAnalyzer("res");
+    Analyzer custom = TestAnalyzer.BuildAnalyzer("../../res");
     analyzer = custom;
 
     BufferedReader in;

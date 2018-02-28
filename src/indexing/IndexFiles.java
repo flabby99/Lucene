@@ -89,7 +89,7 @@ public class IndexFiles {
       System.out.println("Indexing to directory '" + indexPath + "'...");
 
       Directory dir = FSDirectory.open(Paths.get(indexPath));
-      String configDir = "res";
+      String configDir = "../../res";
       //TODO make this configurable
       Analyzer analyzer = new EnglishAnalyzer();
       Analyzer custom = TestAnalyzer.BuildAnalyzer(configDir);
