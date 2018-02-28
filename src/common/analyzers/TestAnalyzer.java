@@ -2,7 +2,7 @@ package common.analyzers;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
 import org.apache.lucene.analysis.core.StopFilterFactory;
-import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
+import org.apache.lucene.analysis.core.WhitespaceTokenizerFactory;
 import org.apache.lucene.analysis.custom.CustomAnalyzer;
 import org.apache.lucene.analysis.en.EnglishMinimalStemFilterFactory;
 import org.apache.lucene.analysis.en.EnglishPossessiveFilterFactory;
@@ -19,7 +19,7 @@ import java.nio.file.Paths;
 public class TestAnalyzer {
   static public Analyzer BuildAnalyzer(String dir) throws IOException {
     Analyzer ana = CustomAnalyzer.builder(Paths.get(dir))
-        .withTokenizer(StandardTokenizerFactory.class)
+        .withTokenizer(WhitespaceTokenizerFactory.class)
         .addTokenFilter(StandardFilterFactory.class)
         .addTokenFilter(LowerCaseFilterFactory.class)
         .addTokenFilter(EnglishMinimalStemFilterFactory.class)
