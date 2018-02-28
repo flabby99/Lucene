@@ -40,10 +40,11 @@ public class SearchFiles {
   /** Simple command-line based search demo. */
   public static void main(String[] args) throws Exception {
     String usage =
-      "Usage:\tjava org.apache.lucene.demo.SearchFiles [-result dir] [-index dir] [-field f] [-repeat n] " +
-          "[-queries file] [-query string] [-raw] [-paging hitsPerPage] [-bm25]" +
-          "bm25 flag is used to set the scorer, if it is off, use tf-idf" +
-          "\n\nSee http://lucene.apache.org/core/4_1_0/demo/ for details.";
+      "Usage:\tjava org.apache.lucene.demo.SearchFiles [-result dir] [-index dir] [-field f] [-repeat n] \n" +
+          "[-queries file] [-query string] [-raw] [-paging hitsPerPage] [-bm25] [-english_ana] \n" +
+          "bm25 flag is used to set the scorer, if it is off, use tf-idf \n" +
+          "english_ana is used to set if the English analyzer is to be used \n" +
+          "\n\nSee http://lucene.apache.org/core/4_1_0/demo/ for details.\n";
     if (args.length > 0 && ("-h".equals(args[0]) || "-help".equals(args[0]))) {
       System.out.println(usage);
       System.exit(0);
@@ -56,6 +57,7 @@ public class SearchFiles {
     int repeat = 0;
     boolean raw = false;
     boolean use_bm25 = false;
+    boolean use_english = false;
     String queryString = null;
     int hitsPerPage = 10;
     int numresults = 1000;
@@ -92,18 +94,26 @@ public class SearchFiles {
           System.exit(1);
         }
         i++;
+      } else if ("-h".equals(args[i])) {
+        System.out.println("Usage: " + usage);
+        System.exit(1);
+      } else if ("-english_ana".equals(args[i])) {
+        use_english = true;
       }
-    }
 
+    }
+    Date start = new Date();
+    System.out.println("Searching in directory: '" + index + "'...");
     IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
     IndexSearcher searcher = new IndexSearcher(reader);
 
     if(use_bm25) searcher.setSimilarity(new BM25Similarity());
     else searcher.setSimilarity(new ClassicSimilarity());
-    //TODO make this configurable
     Analyzer analyzer = new EnglishAnalyzer();
-    Analyzer custom = TestAnalyzer.BuildAnalyzer("../../res");
-    analyzer = custom;
+    if(!use_english) {
+      Analyzer custom = TestAnalyzer.BuildAnalyzer("../../res");
+      analyzer = custom;
+    }
 
     BufferedReader in;
     BufferedWriter out = Files.newBufferedWriter(Paths.get(outlocation));
@@ -136,10 +146,9 @@ public class SearchFiles {
 
       line = QueryParser.escape(line);
       Query query = parser.parse(line);
-      System.out.println("Searching for: " + query.toString());
+      //System.out.println("Searching for: " + query.toString());
 
       if (repeat > 0) {                           // repeat & time as benchmark
-        Date start = new Date();
         for (int i = 0; i < repeat; i++) {
           searcher.search(query, 100);
         }
@@ -159,6 +168,9 @@ public class SearchFiles {
       }
       ++query_count;
     }
+    Date end = new Date();
+    System.out.println("finished searching, results in: " + outlocation);
+    System.out.println(end.getTime() - start.getTime() + " total milliseconds");
     reader.close();
     out.close();
     in.close();

@@ -1,10 +1,11 @@
-# Lucene - Sean
+# Lucene - Sean Martin 13319354
 
-# Makefile
-I will try to create a makefile which will handle compiling the code
-In case I do not get around to it - run:
->javac -d ./classes/ -cp :./lib/* #JAVA_SRC_PATH
+# Building
+To build the project, run ./build.sh
 
 # Running
-To run the code move to the classes directory and run:
->java -cp :../lib/* #JAVA_PROGRAM_PATH #COMMAND LINE ARGS
+Provided are three scripts, run ./run.sh which will run indexing, searching and evaluating with different options.
+index_and_search.sh does what you might expect, use the -h flag for more info
+by default the script takes in the cran.all.1400 file to index
+eval.sh uses trec_eval to evaluate a search results file, again the -h flag works for more info
+by default the script takes in the cranqrel_trec file to evaluate against

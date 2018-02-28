@@ -51,14 +51,16 @@ public class IndexFiles {
   /** Index all text files under a directory. */
   public static void main(String[] args) {
     String usage = "java org.apache.lucene.demo.IndexFiles"
-                 + " [-index INDEX_PATH] [-docs DOCS_PATH] [-update] [-bm25]\n\n"
-                 + "This indexes the documents in DOCS_PATH, creating a Lucene index"
-                 + "bm25 flag is used to set the scorer, if it is off, use tf-idf"
-                 + "in INDEX_PATH that can be searched with SearchFiles";
+                 + " [-index INDEX_PATH] [-docs DOCS_PATH] [-update] [-bm25] [-english_ana]\n\n"
+                 + "This indexes the documents in DOCS_PATH, creating a Lucene index\n"
+                 + "bm25 flag is used to set the scorer, if it is off, use tf-idf\n"
+                 + "english_ana flag on means english analyzer is used, otherwise my own is\n"
+                 + "in INDEX_PATH that can be searched with SearchFiles\n";
     String indexPath = "index";
     String docsPath = null;
     boolean create = true;
     boolean use_bm25 = false;
+    boolean use_english = false;
     for(int i=0;i<args.length;i++) {
       if ("-index".equals(args[i])) {
         indexPath = args[i+1];
@@ -66,10 +68,15 @@ public class IndexFiles {
       } else if ("-docs".equals(args[i])) {
         docsPath = args[i+1];
         i++;
+      } else if ("-english_ana".equals(args[i])) {
+        use_english = true;
       } else if ("-update".equals(args[i])) {
         create = false;
       } else if ("-bm25".equals(args[i])) {
         use_bm25 = true;
+      } else if ("-h".equals(args[i])) {
+        System.out.println("Usage: " + usage);
+        System.exit(1);
       }
     }
 
@@ -90,10 +97,11 @@ public class IndexFiles {
 
       Directory dir = FSDirectory.open(Paths.get(indexPath));
       String configDir = "../../res";
-      //TODO make this configurable
       Analyzer analyzer = new EnglishAnalyzer();
-      Analyzer custom = TestAnalyzer.BuildAnalyzer(configDir);
-      analyzer = custom;
+      if(!use_english) {
+        Analyzer custom = TestAnalyzer.BuildAnalyzer(configDir);
+        analyzer = custom;
+      }
       IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
 
       if (create) {
@@ -204,7 +212,7 @@ public class IndexFiles {
   private static void indexDocument(IndexWriter writer, Document doc) throws IOException  {
     if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
       // New index, so we just add the document (no old document can be there):
-      System.out.println("adding " + doc.get("Title"));
+      //System.out.println("adding " + doc.get("Title"));
       writer.addDocument(doc);
     } else {
       // Existing index (an old copy of this document may have been indexed) so
